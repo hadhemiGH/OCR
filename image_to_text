@@ -35,9 +35,8 @@ def segmentation_predict(im):
         # crop and save
         crop_img = thresh_color[y:y+h, x:x+w]
         #Add Recty
-        pred,image=run_example(crop_img)
+        pred=run_example(crop_img)
         text=text+str(pred)
-        cv2.imwrite(text+'.png', image)
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
     # Finally show the image
     # cv2.imshow('img',img)
