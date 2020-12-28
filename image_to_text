@@ -1,0 +1,49 @@
+from PIL import Image
+import numpy as np
+import imutils
+from processImage import*
+#from imutils import contours
+
+# from scipy import ndimage
+import cv2 
+import  logging
+
+logging.getLogger('tensorflow').disabled = True
+
+def _openImage(im):
+    return cv2.imread(im) 
+
+def segmentation_predict(im):
+    img = _openImage(im)
+    # convert to grayscale
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    # smooth the image to avoid noises
+    gray = cv2.medianBlur(gray,5)
+    # Apply adaptive threshold
+    ret,thresh = cv2.threshold(gray,160,255,cv2.THRESH_BINARY_INV)
+    # thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,11,2)
+    thresh_color = cv2.cvtColor(thresh,cv2.COLOR_GRAY2BGR)  
+
+    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key=lambda ctr: cv2.boundingRect(ctr)[0] )
+    text=""
+    #cnts = sorted(cnts, key=lambda ctr: cv2.boundingRect(ctr)[0] + cv2.boundingRect(ctr)[1]* img.shape[1] )
+    for cnt in cnts:
+        x,y,w,h = cv2.boundingRect(cnt)
+        # crop and save
+        crop_img = thresh_color[y:y+h, x:x+w]
+        #Add Recty
+        pred,image=run_example(crop_img)
+        text=text+str(pred)
+        cv2.imwrite(text+'.png', image)
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+    # Finally show the image
+    # cv2.imshow('img',img)
+    cv2.imwrite('output.jpg', img)
+    print(text)
+    #cv2.imwrite('output_thresh.jpg',thresh_color)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+segmentation_predict("Image_Name.png")    
