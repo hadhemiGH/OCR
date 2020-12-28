@@ -20,8 +20,9 @@ img_height = 28
 # Reshape images size with image depth 1 
 x_train = x_train.reshape(x_train.shape[0], img_height, img_width, 1)
 x_test = x_test.reshape(x_test.shape[0], img_height, img_width, 1)
+
 input_shape = (img_height, img_width, 1)
- 
+
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
@@ -34,19 +35,18 @@ num_classes = 10
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
-# Defining the model architecture
+
 model = Sequential()
-model.add(Conv2D(32, kernel_size=(3, 3),
-                 activation='relu',
-                 input_shape=input_shape))
-model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Conv2D(32, (5, 5), input_shape=(X_train.shape[1], X_train.shape[2], 1), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(num_classes, activation='softmax'))
+model.add(Dense(number_of_classes, activation='softmax'))
+
 
 # Compiling the model
 model.compile(loss='categorical_crossentropy', optimizer='adam',
@@ -54,7 +54,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam',
 
 # Fitting the model on training data
 model.fit(x_train, y_train,
-          #batch_size=100,
+          batch_size=128,
           epochs=50,
           validation_data=(x_test, y_test))
 # Save model 
@@ -64,7 +64,3 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print(score)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
-
-
-
-
