@@ -70,7 +70,7 @@ model.fit(x_train, y_train,
           epochs=30,
           validation_data=(x_test, y_test))
 # Save model 
-model.save('smart_cosmos5.h5')
+model.save('model.h5')
 #  Evaluating the model on test data
 score = model.evaluate(x_test, y_test, verbose=0)
 print(score)
