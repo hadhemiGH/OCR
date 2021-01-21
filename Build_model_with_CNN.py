@@ -7,7 +7,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
-
+from keras.layers import BatchNormalization
 # Splitting the MNIST dataset into Train and Test
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 print('Train: X=%s, y=%s' % (x_train.shape, y_train.shape))
@@ -37,16 +37,28 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 
 
 model = Sequential()
-model.add(Conv2D(32, (5, 5), input_shape=(X_train.shape[1], X_train.shape[2], 1), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(32, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.5))
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(number_of_classes, activation='softmax'))
 
+model.add(Conv2D(32, kernel_size = 3, activation='relu', input_shape = (28, 28, 1)))
+model.add(BatchNormalization())
+model.add(Conv2D(32, kernel_size = 3, activation='relu'))
+model.add(BatchNormalization())
+model.add(Conv2D(32, kernel_size = 5, strides=2, padding='same', activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.4))
+
+model.add(Conv2D(64, kernel_size = 3, activation='relu'))
+model.add(BatchNormalization())
+model.add(Conv2D(64, kernel_size = 3, activation='relu'))
+model.add(BatchNormalization())
+model.add(Conv2D(64, kernel_size = 5, strides=2, padding='same', activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.4))
+
+model.add(Conv2D(128, kernel_size = 4, activation='relu'))
+model.add(BatchNormalization())
+model.add(Flatten())
+model.add(Dropout(0.4))
+model.add(Dense(10, activation='softmax'))
 
 # Compiling the model
 model.compile(loss='categorical_crossentropy', optimizer='adam',
@@ -54,11 +66,11 @@ model.compile(loss='categorical_crossentropy', optimizer='adam',
 
 # Fitting the model on training data
 model.fit(x_train, y_train,
-          batch_size=128,
-          epochs=50,
+          batch_size=86,
+          epochs=30,
           validation_data=(x_test, y_test))
 # Save model 
-model.save('model.h5')
+model.save('smart_cosmos5.h5')
 #  Evaluating the model on test data
 score = model.evaluate(x_test, y_test, verbose=0)
 print(score)
